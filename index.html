@@ -3,447 +3,501 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pulse3D // FitRemind</title>
+    <title>Pulse3D // Advanced Fitness Matrix</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background: radial-gradient(circle at center, #1e1b4b 0%, #0f172a 100%);
-            perspective: 1000px;
+            background: radial-gradient(circle at center, #111827 0%, #030712 100%);
+            perspective: 1200px;
             overflow-x: hidden;
         }
-
-        /* 3D Root Layering */
-        .scene-3d {
-            transform-style: preserve-3d;
-        }
-
-        /* Custom Isometric & 3D Cards */
+        .scene-3d { transform-style: preserve-3d; }
         .card-3d {
             transform-style: preserve-3d;
-            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.5s ease;
-            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.4), 
-                        inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.05);
         }
-
         .card-3d:hover {
-            transform: translateY(-10px) rotateX(10deg) rotateY(-5deg);
-            box-shadow: -15px 30px 40px rgba(0, 0, 0, 0.6), 
-                        0 0 20px rgba(99, 102, 241, 0.2);
+            transform: translateY(-6px) rotateX(4deg) rotateY(-2deg);
+            box-shadow: -10px 25px 35px rgba(0, 0, 0, 0.7), 0 0 25px rgba(139, 92, 246, 0.15);
         }
-
-        /* Floating Animation */
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-10px) rotate(1deg); }
-        }
-
-        .animate-float {
-            animation: float 6s ease-in-out infinite;
-        }
-
-        /* Pulse Core Glow */
+        .pulse-glow { animation: pulseGlow 2.5s ease-in-out infinite; }
         @keyframes pulseGlow {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(1.05); }
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.08); }
         }
-
-        .pulse-glow {
-            animation: pulseGlow 3s ease-in-out infinite;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.6);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #6366f1;
-            border-radius: 10px;
+        .tab-active {
+            background: linear-gradient(to right, #8b5cf6, #ec4899);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
         }
     </style>
 </head>
-<body class="text-slate-200 min-h-screen p-4 md:p-8 flex justify-center items-center">
+<body class="text-slate-100 min-h-screen p-4 md:p-8 flex justify-center items-center">
 
-    <div class="container max-w-5xl scene-3d">
+    <div class="container max-w-6xl scene-3d">
         
-        <header class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6 card-3d bg-slate-900/60 backdrop-blur-xl p-6 rounded-2xl border border-indigo-500/20">
+        <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 card-3d bg-slate-900/80 backdrop-blur-md p-6 rounded-2xl border border-violet-500/10">
             <div class="flex items-center gap-4">
-                <div class="relative w-14 h-14 bg-gradient-to-tr from-indigo-500 to-fuchsia-500 rounded-2xl flex items-center justify-center shadow-lg transform rotate-12">
-                    <i class="fa-solid fa-heart-pulse text-2xl text-white transform -rotate-12"></i>
-                    <div class="absolute inset-0 bg-indigo-500 rounded-2xl pulse-glow -z-10"></div>
+                <div class="relative w-12 h-12 bg-gradient-to-tr from-violet-500 to-fuchsia-500 rounded-xl flex items-center justify-center shadow-lg transform rotate-6">
+                    <i class="fa-solid fa-bolt text-xl text-white"></i>
+                    <div class="absolute inset-0 bg-violet-500 rounded-xl pulse-glow -z-10"></div>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-extrabold tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-fuchsia-400">PULSE // MOTION</h1>
-                    <p class="text-xs text-slate-400">3D Interactive Fitness Task Engine</p>
+                    <h1 class="text-xl font-black tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-fuchsia-400">PULSE MATRIX v2</h1>
+                    <p class="text-[11px] text-slate-400 tracking-widest uppercase">Local-First Analytics Engine</p>
                 </div>
             </div>
             
-            <div class="flex items-center gap-4">
-                <button id="notiBtn" onclick="requestNotificationPermission()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl transition text-sm flex items-center gap-2 shadow-inner">
-                    <i id="notiIcon" class="fa-solid fa-bell text-amber-400"></i>
-                    <span id="notiText">Enable Alerts</span>
+            <div class="flex flex-wrap items-center gap-3">
+                <button id="notiBtn" onclick="requestNotificationPermission()" class="px-4 py-2 bg-slate-950 border border-slate-800 rounded-xl transition text-xs font-bold tracking-wide flex items-center gap-2">
+                    <i id="notiIcon" class="fa-solid fa-bell text-violet-400"></i>
+                    <span id="notiText">Enable Systems Push</span>
                 </button>
-                <div class="bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-orange-500/30 px-4 py-2 rounded-xl flex items-center gap-2">
-                    <i class="fa-solid fa-fire text-orange-500 animate-bounce"></i>
-                    <span class="text-sm font-bold text-orange-400"><span id="streakCount">0</span> Day Streak</span>
+                <div class="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-orange-500/20 px-4 py-2 rounded-xl flex items-center gap-2">
+                    <i class="fa-solid fa-fire text-orange-500"></i>
+                    <span class="text-xs font-bold text-orange-400"><span id="streakCount">0</span> Day Streak</span>
                 </div>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
             
             <div class="lg:col-span-1 flex flex-col gap-6">
-                <div class="card-3d bg-slate-900/80 backdrop-blur-xl p-6 rounded-2xl border border-indigo-500/20">
-                    <h2 class="text-lg font-bold mb-4 flex items-center gap-2 text-indigo-400">
-                        <i class="fa-solid fa-calendar-plus"></i> Schedule Exercise
+                
+                <div class="card-3d bg-slate-900/90 backdrop-blur-md p-5 rounded-2xl border border-violet-500/10">
+                    <h2 class="text-md font-bold mb-4 flex items-center gap-2 text-violet-400">
+                        <i class="fa-solid fa-square-plus"></i> Initialize Workout Task
                     </h2>
                     
                     <form id="taskForm" onsubmit="handleAddTask(event)" class="space-y-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Exercise Name</label>
-                            <input type="text" id="taskName" required placeholder="e.g., Pushups, Yoga, Squats" 
-                                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-indigo-500 transition shadow-inner">
+                            <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase tracking-wider">Exercise Name</label>
+                            <input type="text" id="taskName" required placeholder="e.g., Heavy Squats, HIIT Circuit" 
+                                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-violet-500 transition shadow-inner">
                         </div>
                         
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Type</label>
-                                <select id="taskType" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-slate-200 focus:outline-none focus:border-indigo-500 transition">
-                                    <option value="cardio">Cardio</option>
-                                    <option value="strength">Strength</option>
-                                    <option value="flexibility">Flexibility</option>
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase tracking-wider">Modality</label>
+                                <select id="taskType" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-violet-500 transition">
+                                    <option value="strength">🏋️‍♂️ Strength</option>
+                                    <option value="cardio">🏃‍♂️ Cardio</option>
+                                    <option value="flexibility">🧘‍♂️ Mobility</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">In (Minutes)</label>
-                                <input type="number" id="taskTimer" min="1" required placeholder="e.g., 5" 
-                                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-indigo-500 transition shadow-inner">
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase tracking-wider">Timer (Minutes)</label>
+                                <input type="number" id="taskTimer" min="1" required placeholder="e.g., 20" 
+                                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-violet-500 transition shadow-inner">
                             </div>
                         </div>
 
-                        <button type="submit" class="w-full bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:from-indigo-600 hover:to-fuchsia-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-indigo-500/20 transform transition active:scale-95 flex justify-center items-center gap-2">
-                            <i class="fa-solid fa-bolt"></i> Ignite Timer
+                        <button type="submit" class="w-full bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:brightness-110 text-white font-bold py-2.5 px-4 rounded-xl shadow-lg shadow-violet-500/10 transform transition active:scale-[0.98] flex justify-center items-center gap-2 text-sm">
+                            <i class="fa-solid fa-play text-xs"></i> Deploy Task Timer
                         </button>
                     </form>
                 </div>
 
-                <div class="card-3d bg-gradient-to-br from-indigo-950/40 to-slate-900/80 backdrop-blur-xl p-6 rounded-2xl border border-fuchsia-500/10 text-center animate-float">
-                    <i class="fa-solid fa-quote-left text-2xl text-indigo-500 mb-2 block"></i>
-                    <p id="quoteBox" class="text-sm italic text-slate-300">"Your body can stand almost anything. It's your mind that you have to convince."</p>
+                <div class="card-3d bg-slate-900/60 backdrop-blur-md p-5 rounded-2xl border border-slate-800 grid grid-cols-2 gap-4">
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/60">
+                        <span class="text-[10px] font-semibold text-slate-500 block uppercase">Total Burn</span>
+                        <span id="statCalories" class="text-lg font-black text-fuchsia-400">0</span> <span class="text-[10px] text-slate-400">XP</span>
+                    </div>
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/60">
+                        <span class="text-[10px] font-semibold text-slate-500 block uppercase">Completed</span>
+                        <span id="statCount" class="text-lg font-black text-teal-400">0</span> <span class="text-[10px] text-slate-400">Sets</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="lg:col-span-2 flex flex-col gap-6">
-                <div class="card-3d bg-slate-900/50 backdrop-blur-xl p-6 rounded-2xl border border-slate-800 min-h-[400px]">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-lg font-bold flex items-center gap-2 text-fuchsia-400">
-                            <i class="fa-solid fa-stopwatch"></i> Active Tracking Core
-                        </h2>
-                        <span id="activeCount" class="bg-slate-800 border border-slate-700 px-3 py-1 rounded-full text-xs font-mono text-slate-400">0 Active</span>
-                    </div>
+            <div class="lg:col-span-2 flex flex-col gap-4">
+                
+                <div class="flex gap-2 p-1.5 bg-slate-950 border border-slate-800 rounded-xl self-start">
+                    <button onclick="switchTab('queue')" id="tabBtn-queue" class="px-4 py-2 text-xs font-bold rounded-lg transition-all tab-active flex items-center gap-2">
+                        <i class="fa-solid fa-stopwatch"></i> Active Core
+                    </button>
+                    <button onclick="switchTab('charts')" id="tabBtn-charts" class="px-4 py-2 text-xs font-bold rounded-lg transition-all text-slate-400 hover:text-slate-200 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line"></i> Analytics Matrix
+                    </button>
+                    <button onclick="switchTab('logs')" id="tabBtn-logs" class="px-4 py-2 text-xs font-bold rounded-lg transition-all text-slate-400 hover:text-slate-200 flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left"></i> History Log
+                    </button>
+                </div>
 
-                    <div id="taskQueue" class="space-y-4 max-h-[500px] overflow-y-auto pr-2">
-                        <div id="emptyState" class="text-center py-20 text-slate-500 border-2 border-dashed border-slate-800 rounded-xl">
-                            <i class="fa-solid fa-cubes-stacked text-4xl mb-4 text-slate-700"></i>
-                            <p class="text-sm">No scheduled movements active.</p>
-                            <p class="text-xs text-slate-600 mt-1">Set a timer on the left to initialize.</p>
+                <div id="tabContent-queue" class="card-3d bg-slate-900/40 backdrop-blur-md p-5 rounded-2xl border border-slate-800/80 min-h-[380px]">
+                    <div id="taskQueue" class="space-y-4 max-h-[420px] overflow-y-auto pr-1">
+                        <div id="emptyState" class="text-center py-24 text-slate-600 border-2 border-dashed border-slate-800/80 rounded-xl">
+                            <i class="fa-solid fa-heart-pulse text-3xl mb-3 text-slate-700"></i>
+                            <p class="text-xs">No active timers deployed. Set parameters on the left to initialize.</p>
                         </div>
                     </div>
                 </div>
-            </div>
 
+                <div id="tabContent-charts" class="card-3d bg-slate-900/40 backdrop-blur-md p-5 rounded-2xl border border-slate-800/80 min-h-[380px] hidden">
+                    <div class="w-full h-[320px] relative flex items-center justify-center">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+
+                <div id="tabContent-logs" class="card-3d bg-slate-900/40 backdrop-blur-md p-5 rounded-2xl border border-slate-800/80 min-h-[380px] hidden">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xs font-bold tracking-widest uppercase text-slate-400">Historical Operational Record</h3>
+                        <button onclick="clearHistoryLog()" class="text-[10px] bg-red-500/10 border border-red-500/20 text-red-400 px-2 py-1 rounded hover:bg-red-500/20 transition">Wipe Ledger</button>
+                    </div>
+                    <div id="logContainer" class="space-y-2 max-h-[300px] overflow-y-auto text-xs pr-1">
+                        </div>
+                </div>
+
+            </div>
         </div>
     </div>
 
     <audio id="alertSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-600.wav" preload="auto"></audio>
 
     <script>
-        // System State Architecture
-        let tasks = JSON.parse(localStorage.getItem('pulse_tasks')) || [];
-        let streak = parseInt(localStorage.getItem('pulse_streak')) || 0;
-        let lastCompletionDate = localStorage.getItem('pulse_last_date') || "";
+        // System State Data Schemas
+        let tasks = JSON.parse(localStorage.getItem('m2_tasks')) || [];
+        let historyLog = JSON.parse(localStorage.getItem('m2_history')) || [];
+        let streak = parseInt(localStorage.getItem('m2_streak')) || 0;
+        let lastDate = localStorage.getItem('m2_last_date') || "";
+        let currentTab = 'queue';
+        let chartInstance = null;
 
-        const quotes = [
-            "Your body can stand almost anything. It's your mind that you have to convince.",
-            "Energy flows where attention goes. Focus on your movement.",
-            "The only bad workout is the one that didn't happen.",
-            "Small daily improvements over time lead to stunning results.",
-            "Action cures fear. Move now."
-        ];
-
-        // Initialization Logic
         document.addEventListener('DOMContentLoaded', () => {
-            updateStreakDisplay();
+            syncStreakFramework();
             renderTasks();
-            checkNotificationStatus();
-            cycleQuotes();
-            // Start precision 1s background ticks
+            populateHistoryLog();
+            calculateGlobalMetrics();
+            checkSystemNotificationStatus();
+            initChartCore();
+            
+            // 1-second system clock tick
             setInterval(systemTick, 1000);
         });
 
-        // Dynamic Motivation Quotes Engine
-        function cycleQuotes() {
-            setInterval(() => {
-                const quoteBox = document.getElementById('quoteBox');
-                quoteBox.style.opacity = 0;
-                setTimeout(() => {
-                    quoteBox.innerText = `"${quotes[Math.floor(Math.random() * quotes.length)]}"`;
-                    quoteBox.style.opacity = 1;
-                }, 400);
-            }, 15000);
+        // Tab Navigation Engine
+        function switchTab(targetTab) {
+            document.getElementById(`tabContent-${currentTab}`).classList.add('hidden');
+            document.getElementById(`tabBtn-${currentTab}`).className = "px-4 py-2 text-xs font-bold rounded-lg transition-all text-slate-400 hover:text-slate-200 flex items-center gap-2";
+            
+            currentTab = targetTab;
+            
+            document.getElementById(`tabContent-${currentTab}`).classList.remove('hidden');
+            document.getElementById(`tabBtn-${currentTab}`).className = "px-4 py-2 text-xs font-bold rounded-lg transition-all tab-active flex items-center gap-2";
+            
+            if(targetTab === 'charts') {
+                updateChartData();
+            }
         }
 
-        // Web Notifications Management Matrix
-        function checkNotificationStatus() {
-            const notiBtn = document.getElementById('notiBtn');
-            const notiIcon = document.getElementById('notiIcon');
-            const notiText = document.getElementById('notiText');
-
+        // Web Notifications API Engine (Mobile & Desktop Cross-Compatibility)
+        function checkSystemNotificationStatus() {
+            const btn = document.getElementById('notiBtn');
             if (!("Notification" in window)) {
-                notiBtn.style.display = 'none';
+                btn.style.display = 'none';
                 return;
             }
-
             if (Notification.permission === "granted") {
-                notiBtn.className = "px-4 py-2 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-sm flex items-center gap-2 text-emerald-400 cursor-default";
-                notiIcon.className = "fa-solid fa-shield-check text-emerald-400";
-                notiText.innerText = "Alerts Armed";
-                notiBtn.onclick = null;
+                btn.className = "px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs font-bold text-emerald-400 cursor-default flex items-center gap-2";
+                document.getElementById('notiIcon').className = "fa-solid fa-shield-check text-emerald-400";
+                document.getElementById('notiText').innerText = "System Synced";
+                btn.onclick = null;
             }
         }
 
         function requestNotificationPermission() {
-            Notification.requestPermission().then(permission => {
-                if (permission === "granted") {
-                    checkNotificationStatus();
-                    new Notification("System Connected", {
-                        body: "Pulse Engine will now ping you when timers conclude.",
+            Notification.requestPermission().then(perm => {
+                if(perm === 'granted') {
+                    checkSystemNotificationStatus();
+                    new Notification("Matrix Link Online", {
+                        body: "Notification arrays are synchronized across this browser environment.",
                         icon: "https://cdn-icons-png.flaticon.com/512/1045/1045218.png"
                     });
                 }
             });
         }
 
-        // CRUD Pattern: Task Submissions
+        // Core Task Pipelines (CRUD Framework)
         function handleAddTask(e) {
             e.preventDefault();
-            const nameInput = document.getElementById('taskName');
-            const typeInput = document.getElementById('taskType');
-            const timerInput = document.getElementById('taskTimer');
+            const name = document.getElementById('taskName');
+            const type = document.getElementById('taskType');
+            const timer = document.getElementById('taskTimer');
 
-            const durationMinutes = parseInt(timerInput.value);
-            const targetTime = Date.now() + (durationMinutes * 60 * 1000);
-
+            const totalSeconds = parseInt(timer.value) * 60;
+            
             const newTask = {
-                id: 'task_' + Date.now(),
-                name: nameInput.value,
-                type: typeInput.value,
-                targetTime: targetTime,
-                totalDuration: durationMinutes * 60,
+                id: 'tk_' + Date.now(),
+                name: name.value,
+                type: type.value,
+                targetTime: Date.now() + (totalSeconds * 1000),
+                totalDuration: totalSeconds,
                 status: 'running'
             };
 
             tasks.push(newTask);
-            saveState();
+            saveStateToDisk();
             renderTasks();
             
-            // Reset input UI fields cleanly
-            nameInput.value = '';
-            timerInput.value = '';
+            name.value = '';
+            timer.value = '';
         }
 
-        // Real-time Calculation Tick (Every 1 Second)
         function systemTick() {
-            let changesMade = false;
-            
+            let changesOccurred = false;
             tasks.forEach(task => {
-                if (task.status === 'running') {
+                if(task.status === 'running') {
                     const remaining = Math.max(0, Math.ceil((task.targetTime - Date.now()) / 1000));
                     
-                    // Live UI injection updates to avoid rebuilding structural DOM nodes every second
-                    const countdownEl = document.getElementById(`time-${task.id}`);
+                    const timeEl = document.getElementById(`time-${task.id}`);
                     const progressEl = document.getElementById(`progress-${task.id}`);
                     
-                    if (countdownEl && progressEl) {
-                        countdownEl.innerText = formatTime(remaining);
-                        const progressPercent = ((task.totalDuration - remaining) / task.totalDuration) * 100;
-                        progressEl.style.width = `${progressPercent}%`;
+                    if (timeEl && progressEl) {
+                        timeEl.innerText = formatTime(remaining);
+                        progressEl.style.width = `${((task.totalDuration - remaining) / task.totalDuration) * 100}%`;
                     }
 
-                    if (remaining <= 0) {
+                    if(remaining <= 0) {
                         task.status = 'triggered';
-                        triggerAlertNotification(task);
-                        changesMade = true;
+                        dispatchAlertBroadcast(task);
+                        changesOccurred = true;
                     }
                 }
             });
 
-            if (changesMade) {
-                saveState();
+            if(changesOccurred) {
+                saveStateToDisk();
                 renderTasks();
             }
         }
 
-        // Alert Broadcasting System
-        function triggerAlertNotification(task) {
-            document.getElementById('alertSound').play().catch(e => console.log("Audio interactions deferred waiting for user click."));
-            
-            if (Notification.permission === "granted") {
-                new Notification(`Time to Move! 🏋️‍♂️`, {
-                    body: `Your interval for "${task.name}" has expired. Engage!`,
-                    tag: task.id,
-                    requireInteraction: true
+        function dispatchAlertBroadcast(task) {
+            document.getElementById('alertSound').play().catch(() => {});
+            if(Notification.permission === 'granted') {
+                new Notification(`Interval Expired!`, {
+                    body: `Initiate execution: ${task.name}`,
+                    requireInteraction: true,
+                    tag: task.id
                 });
             }
         }
 
-        // Complete & Clear Task Pipelines
         function completeTask(id) {
-            tasks = tasks.filter(t => t.id !== id);
-            processStreakLogic();
-            saveState();
-            renderTasks();
+            const index = tasks.findIndex(t => t.id === id);
+            if(index !== -1) {
+                const target = tasks[index];
+                
+                // Track workout history ledger
+                const xpCalculated = Math.round((target.totalDuration / 60) * 12);
+                const historicalItem = {
+                    name: target.name,
+                    type: target.type,
+                    xp: xpCalculated,
+                    timestamp: new Date().toISOString(),
+                    dateString: new Date().toLocaleDateString()
+                };
+
+                historyLog.unshift(historicalItem); // Prepend to history stack
+                tasks.splice(index, 1); // Extract from running array
+                
+                processStreakLogic();
+                saveStateToDisk();
+                renderTasks();
+                populateHistoryLog();
+                calculateGlobalMetrics();
+                if(currentTab === 'charts') updateChartData();
+            }
         }
 
         function deleteTask(id) {
             tasks = tasks.filter(t => t.id !== id);
-            saveState();
+            saveStateToDisk();
             renderTasks();
+        }
+
+        // Metrics & Analytics Logic
+        function calculateGlobalMetrics() {
+            const totalXp = historyLog.reduce((acc, curr) => acc + curr.xp, 0);
+            document.getElementById('statCalories').innerText = totalXp;
+            document.getElementById('statCount').innerText = historyLog.length;
         }
 
         // Gamification Streak Verification Architecture
         function processStreakLogic() {
             const today = new Date().toDateString();
-            if (lastCompletionDate !== today) {
-                if (lastCompletionDate === new Date(Date.now() - 86400000).toDateString() || streak === 0) {
+            if (lastDate !== today) {
+                if (lastDate === new Date(Date.now() - 86400000).toDateString() || streak === 0) {
                     streak += 1;
                 } else {
-                    streak = 1; // Streak broken, resets to day 1
+                    streak = 1;
                 }
-                lastCompletionDate = today;
-                localStorage.setItem('pulse_streak', streak);
-                localStorage.setItem('pulse_last_date', lastCompletionDate);
-                updateStreakDisplay();
+                lastDate = today;
+                localStorage.setItem('m2_streak', streak);
+                localStorage.setItem('m2_last_date', lastDate);
+                syncStreakFramework();
             }
         }
 
-        function updateStreakDisplay() {
+        function syncStreakFramework() {
             document.getElementById('streakCount').innerText = streak;
         }
 
-        function saveState() {
-            localStorage.setItem('pulse_tasks', JSON.stringify(tasks));
+        function saveStateToDisk() {
+            localStorage.setItem('m2_tasks', JSON.stringify(tasks));
+            localStorage.setItem('m2_history', JSON.stringify(historyLog));
         }
 
-        // UI Parsing & Dynamic Component Injection Engine
+        // DOM Rendering Framework
         function renderTasks() {
             const queue = document.getElementById('taskQueue');
             const emptyState = document.getElementById('emptyState');
-            const activeCount = document.getElementById('activeCount');
+            const activeRunning = tasks.filter(t => t.status === 'running' || t.status === 'triggered');
 
-            // Render calculations logic
-            const runningTasks = tasks.filter(t => t.status === 'running' || t.status === 'triggered');
-            activeCount.innerText = `${runningTasks.length} Tracked`;
-
-            if (runningTasks.length === 0) {
+            if(activeRunning.length === 0) {
                 emptyState.style.display = 'block';
-                // Clear out stale programmatic nodes safely
-                const elements = queue.querySelectorAll('.dynamic-task-node');
-                elements.forEach(el => el.remove());
+                queue.querySelectorAll('.task-node').forEach(n => n.remove());
                 return;
             }
-
             emptyState.style.display = 'none';
 
-            // Loop and render cards mapping with specific structural 3D style parameters
-            runningTasks.forEach(task => {
-                let existingNode = document.getElementById(task.id);
+            activeRunning.forEach(task => {
+                let node = document.getElementById(task.id);
                 const remaining = Math.max(0, Math.ceil((task.targetTime - Date.now()) / 1000));
-                
-                let iconClass = "fa-person-running text-indigo-400";
-                let gradientBg = "from-indigo-500/10 to-slate-900/90";
-                let accentBorder = "border-indigo-500/20";
+                let borderTheme = task.status === 'triggered' ? 'border-amber-500/40 bg-gradient-to-r from-amber-500/10 to-red-500/5 animate-pulse' : 'border-slate-800 bg-slate-950/60';
 
-                if (task.type === 'strength') {
-                    iconClass = "fa-dumbbell text-fuchsia-400";
-                    accentBorder = "border-fuchsia-500/20";
-                } else if (task.type === 'flexibility') {
-                    iconClass = "fa-child-yoga text-teal-400";
-                    accentBorder = "border-teal-500/20";
-                }
-
-                if (task.status === 'triggered') {
-                    gradientBg = "from-amber-500/20 to-red-500/10 animate-pulse";
-                    accentBorder = "border-amber-500/40 shadow-lg shadow-amber-500/10";
-                }
-
-                const innerHTMLStructure = `
-                    <div class="flex justify-between items-center mb-3">
+                const coreHTML = `
+                    <div class="flex justify-between items-center gap-3">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-slate-950 rounded-xl flex items-center justify-center border border-slate-800">
-                                <i class="fa-solid ${iconClass} text-lg"></i>
-                            </div>
+                            <span class="text-lg">${task.type === 'strength' ? '🏋️‍♂️' : task.type === 'cardio' ? '🏃‍♂️' : '🧘‍♂️'}</span>
                             <div>
-                                <h3 class="font-bold text-sm tracking-wide capitalize">${task.name}</h3>
-                                <span class="text-[10px] text-slate-500 uppercase font-bold">${task.type}</span>
+                                <h4 class="text-xs font-bold tracking-wide text-slate-200 capitalize">${task.name}</h4>
+                                <span class="text-[9px] text-slate-500 uppercase font-mono tracking-widest">${task.type}</span>
                             </div>
                         </div>
-                        
                         <div class="flex items-center gap-2">
                             ${task.status === 'triggered' ? `
-                                <button onclick="completeTask('${task.id}')" class="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold text-xs rounded-lg shadow-md hover:brightness-110 transition active:scale-95 flex items-center gap-1">
-                                    <i class="fa-solid fa-check"></i> Complete
+                                <button onclick="completeTask('${task.id}')" class="px-3 py-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold text-[10px] rounded-lg shadow-md hover:brightness-110 active:scale-95 transition">
+                                    Complete
                                 </button>
                             ` : `
-                                <span id="time-${task.id}" class="font-mono text-sm bg-slate-950 px-3 py-1 rounded-lg border border-slate-800 text-indigo-400 font-bold">${formatTime(remaining)}</span>
+                                <span id="time-${task.id}" class="font-mono text-xs bg-slate-950 px-2.5 py-1 rounded-md border border-slate-800 text-violet-400 font-bold">${formatTime(remaining)}</span>
                             `}
-                            <button onclick="deleteTask('${task.id}')" class="w-8 h-8 text-slate-500 hover:text-red-400 transition text-xs">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
+                            <button onclick="deleteTask('${task.id}')" class="text-slate-600 hover:text-red-400 px-1 transition text-xs"><i class="fa-solid fa-trash-can"></i></button>
                         </div>
                     </div>
-                    
-                    <div class="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden border border-slate-900/50">
-                        <div id="progress-${task.id}" class="bg-gradient-to-r from-indigo-500 to-fuchsia-500 h-full transition-all duration-1000 ease-linear" style="width: ${((task.totalDuration - remaining) / task.totalDuration) * 100}%"></div>
+                    <div class="w-full bg-slate-900 h-1 mt-3 rounded-full overflow-hidden">
+                        <div id="progress-${task.id}" class="bg-gradient-to-r from-violet-500 to-fuchsia-500 h-full transition-all duration-1000 ease-linear" style="width: ${((task.totalDuration - remaining) / task.totalDuration) * 100}%"></div>
                     </div>
                 `;
 
-                if (existingNode) {
-                    // Update state to prevent full UI flash jumps during redraws
-                    if (task.status === 'triggered' && !existingNode.classList.contains('animate-pulse')) {
-                        existingNode.className = `dynamic-task-node card-3d p-4 rounded-xl bg-gradient-to-br ${gradientBg} border ${accentBorder} relative`;
-                        existingNode.innerHTML = innerHTMLStructure;
+                if(node) {
+                    if (task.status === 'triggered' && !node.classList.contains('animate-pulse')) {
+                        node.className = `task-node card-3d p-4 rounded-xl border ${borderTheme}`;
+                        node.innerHTML = coreHTML;
                     }
                 } else {
-                    // Inject completely new structural DOM element node 
-                    const wrapper = document.createElement('div');
-                    wrapper.id = task.id;
-                    wrapper.className = `dynamic-task-node card-3d p-4 rounded-xl bg-gradient-to-br ${gradientBg} border ${accentBorder} relative`;
-                    wrapper.innerHTML = innerHTMLStructure;
-                    queue.appendChild(wrapper);
+                    const row = document.createElement('div');
+                    row.id = task.id;
+                    row.className = `task-node card-3d p-4 rounded-xl border ${borderTheme}`;
+                    row.innerHTML = coreHTML;
+                    queue.appendChild(row);
                 }
             });
 
-            // Pruning step: Remove UI components that are no longer active in memory state array
-            const currentUIElements = queue.querySelectorAll('.dynamic-task-node');
-            currentUIElements.forEach(el => {
-                if (!tasks.find(t => t.id === el.id)) {
-                    el.remove();
+            queue.querySelectorAll('.task-node').forEach(el => {
+                if(!tasks.find(t => t.id === el.id)) el.remove();
+            });
+        }
+
+        function populateHistoryLog() {
+            const container = document.getElementById('logContainer');
+            if(historyLog.length === 0) {
+                container.innerHTML = `<p class="text-slate-600 italic text-center py-8">No historical exercises cataloged.</p>`;
+                return;
+            }
+            container.innerHTML = historyLog.map(item => `
+                <div class="flex justify-between items-center bg-slate-950/80 p-2.5 border border-slate-900 rounded-lg">
+                    <span class="font-medium text-slate-300">${item.name} <span class="text-[9px] text-slate-500 font-mono">(${item.type})</span></span>
+                    <div class="text-right">
+                        <span class="text-fuchsia-400 font-bold block">+${item.xp} XP</span>
+                        <span class="text-[8px] text-slate-500 block">${item.dateString}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function clearHistoryLog() {
+            if(confirm("Confirm structural purge of historical metrics data?")) {
+                historyLog = [];
+                saveStateToDisk();
+                populateHistoryLog();
+                calculateGlobalMetrics();
+                if(currentTab === 'charts') updateChartData();
+            }
+        }
+
+        // Chart.js Visualization Layer Architecture
+        function initChartCore() {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'XP Generated',
+                        data: [],
+                        backgroundColor: 'rgba(139, 92, 246, 0.4)',
+                        borderColor: 'rgba(236, 72, 153, 0.8)',
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#64748b', font: { size: 9 } } },
+                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 9 } } }
+                    }
                 }
             });
         }
 
-        // Time Normalization Utility helper
+        function updateChartData() {
+            if(!chartInstance) return;
+
+            // Generate map of the past 7 calendar intervals
+            const analyticalMap = {};
+            for(let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                analyticalMap[d.toLocaleDateString()] = 0;
+            }
+
+            // Aggregate operational history metrics
+            historyLog.forEach(log => {
+                if(analyticalMap[log.dateString] !== undefined) {
+                    analyticalMap[log.dateString] += log.xp;
+                }
+            });
+
+            chartInstance.data.labels = Object.keys(analyticalMap);
+            chartInstance.data.datasets[0].data = Object.values(analyticalMap);
+            chartInstance.update();
+        }
+
         function formatTime(seconds) {
-            const mins = Math.floor(seconds / 60);
-            const secs = seconds % 60;
-            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
         }
     </script>
 </body>
