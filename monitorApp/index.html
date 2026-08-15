@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="index.css" rel="stylesheet" media="all">
+    <title>App Login</title>
+</head>
+<body>
+    <nav>
+        <h2>The App</h2>
+        <ul>
+            <a href="#studentLogin"><li>Student</li></a>
+            <a href="#adminLogin"><li>Admin</li></a>
+        </ul>
+    </nav>
+    <section class="card" id="studentLogin">
+        <a href="#adminLogin"><h1>Student Login</h1></a>
+        <form action="">
+            <label for="studentNumber">Student Number:</label>
+            <input type="text" id="studentNumber" placeholder="e.g 22027..." required>
+            <label for="studentNumber">Password:</label>
+            <input type="text" id="studentPass" placeholder="Password" required>
+            <button type="submit">Login</button>
+            <p>Don't have an Account yet? <a href="#">Click here Now!</a></p>
+        </form>
+    </section>
+    <section class="card" id="adminLogin">
+        <a href="#studentLogin"><h1>Admin Login</h1></a>
+        <form action="">
+            <label for="studentNumber">Admin Email:</label>
+            <input type="text" id="adminNumber" placeholder="e.g 22027..." required>
+            <label for="studentNumber">Password:</label>
+            <input type="text" id="adminPass" placeholder="Password" required>
+            <button type="submit">Login</button>
+            <p>Forgot Password? <a href="#">Click here Now!</a></p>
+        </form>
+    </section>
+</body>
+</html>
