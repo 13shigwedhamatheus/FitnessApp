@@ -144,7 +144,7 @@
     <!-- MAIN APP STRUCTURE -->
     <div id="app-container" class="relative z-10 min-h-screen flex flex-col">
         <!-- Header Nav -->
-        <header class="w-full glass-panel border-b border-slate-800 sticky top-0 z-40">
+        <header class="w-full glass-panel border-b border-slate-800 sticky top-0 z-40 relative">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                 <div class="flex items-center space-x-3">
                     <div class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center shadow-md">
@@ -166,6 +166,9 @@
                 </nav>
 
                 <div class="flex items-center space-x-3">
+                    <button id="btn-mobile-menu" type="button" aria-label="Open navigation menu" aria-controls="mobile-menu" aria-expanded="false" class="md:hidden p-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 hover:text-white">
+                        <i id="mobile-menu-icon" data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
                     <div class="hidden sm:flex flex-col text-right">
                         <span id="user-display-name" class="text-xs font-bold text-white">Guest</span>
                         <span id="user-display-goal" class="text-[10px] text-slate-400">Indoor Training</span>
@@ -177,16 +180,22 @@
                 </div>
             </div>
 
-            <!-- Mobile Nav Strip -->
-            <div class="md:hidden flex overflow-x-auto border-t border-slate-800/80 px-2 py-2 space-x-2 scrollbar-none">
-                <button data-tab="dashboard" class="mobile-nav-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-white whitespace-nowrap">Dashboard</button>
-                <button data-tab="schedule" class="mobile-nav-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 whitespace-nowrap">Workouts</button>
-                <button data-tab="coach" class="mobile-nav-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 whitespace-nowrap">AI Coach</button>
-                <button data-tab="biometrics" class="mobile-nav-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 whitespace-nowrap">Biometrics</button>
-                <button data-tab="history" class="mobile-nav-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 whitespace-nowrap">History</button>
-                <button data-tab="settings" class="mobile-nav-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 whitespace-nowrap">Settings</button>
+            <div id="mobile-menu" class="hidden md:hidden absolute z-50 top-full left-3 right-3 mt-2 glass-panel rounded-2xl p-3 shadow-2xl border border-slate-700">
+                <nav aria-label="Mobile navigation" class="grid grid-cols-2 gap-2">
+                    <button data-tab="dashboard" class="mobile-nav-btn p-3 rounded-xl text-left text-xs font-semibold text-slate-300 hover:bg-slate-800">Dashboard</button>
+                    <button data-tab="schedule" class="mobile-nav-btn p-3 rounded-xl text-left text-xs font-semibold text-slate-300 hover:bg-slate-800">Workouts</button>
+                    <button data-tab="coach" class="mobile-nav-btn p-3 rounded-xl text-left text-xs font-semibold text-slate-300 hover:bg-slate-800">AI Coach</button>
+                    <button data-tab="biometrics" class="mobile-nav-btn p-3 rounded-xl text-left text-xs font-semibold text-slate-300 hover:bg-slate-800">Biometrics</button>
+                    <button data-tab="history" class="mobile-nav-btn p-3 rounded-xl text-left text-xs font-semibold text-slate-300 hover:bg-slate-800">History</button>
+                    <button data-tab="settings" class="mobile-nav-btn p-3 rounded-xl text-left text-xs font-semibold text-slate-300 hover:bg-slate-800">Settings</button>
+                </nav>
             </div>
         </header>
+
+        <button id="btn-open-coach" type="button" aria-label="Open FitPulse AI Coach" class="fixed z-40 right-4 sm:right-6 bottom-[calc(1rem+env(safe-area-inset-bottom))] flex items-center gap-2 rounded-full btn-theme px-4 py-3.5 shadow-2xl font-bold text-xs hover:scale-105 transition-transform">
+            <i data-lucide="message-circle" class="w-5 h-5"></i>
+            <span class="hidden sm:inline">Ask your coach</span>
+        </button>
 
         <!-- Main Content -->
         <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
