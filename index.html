@@ -335,7 +335,7 @@
                             <input id="coach-food" maxlength="160" placeholder="e.g. vegetarian, no peanuts" class="w-full px-3 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm">
                         </div>
                         <button id="btn-local-plan" type="button" class="w-full py-3 rounded-xl btn-theme font-bold text-xs">Build my free plan</button>
-                        <p class="text-[10px] text-slate-500">Your plan runs in your browser and doesn’t need an account or API key.</p>
+                        <p class="text-[10px] text-slate-500">Your plan runs locally in your browser and needs no account. A server-side AI integration can be added without exposing private API keys.</p>
                     </form>
 
                     <div class="xl:col-span-3 glass-panel rounded-3xl p-5 sm:p-6 space-y-4">
@@ -1078,6 +1078,7 @@
         }
 
         function switchTab(tabId) {
+            closeMobileMenu();
             ['dashboard', 'schedule', 'coach', 'biometrics', 'history', 'settings'].forEach(id => {
                 const sec = document.getElementById(`tab-${id}`);
                 if (sec) {
@@ -1100,6 +1101,30 @@
             if (tabId === 'coach') buildLocalCoachPlan();
             if (tabId === 'biometrics') renderBiometrics();
             if (tabId === 'history') renderHistory();
+        }
+
+        function setMobileMenuOpen(open) {
+            const menu = document.getElementById('mobile-menu');
+            const button = document.getElementById('btn-mobile-menu');
+            menu.classList.toggle('hidden', !open);
+            button.setAttribute('aria-expanded', String(open));
+            button.setAttribute('aria-label', open ? 'Close navigation menu' : 'Open navigation menu');
+            button.innerHTML = `<i data-lucide="${open ? 'x' : 'menu'}" class="w-5 h-5"></i>`;
+            lucide.createIcons();
+        }
+
+        function closeMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            if (menu && !menu.classList.contains('hidden')) setMobileMenuOpen(false);
+        }
+
+        function setCoachBotOpen(open) {
+            const panel = document.getElementById('coach-bot-panel');
+            const button = document.getElementById('btn-open-coach');
+            panel.classList.toggle('hidden', !open);
+            panel.classList.toggle('flex', open);
+            button.setAttribute('aria-expanded', String(open));
+            if (open) document.getElementById('coach-bot-input').focus();
         }
 
         function updateDashboard() {
@@ -1284,71 +1309,54 @@
             return { context, plan };
         }
 
-        async function askGeminiCoach() {
-            const key = document.getElementById('gemini-key').value.trim();
-            const question = document.getElementById('coach-question').value.trim();
-            const status = document.getElementById('coach-status');
-            const answer = document.getElementById('coach-answer');
-            const button = document.getElementById('btn-ask-gemini');
-
-            if (!key) {
-                status.textContent = 'Enter a Gemini API key to use Gemini. Your free starter plan remains available without one.';
-                document.getElementById('gemini-key').focus();
-                return;
-            }
-            if (!question) {
-                status.textContent = 'Add a question for the coach first.';
-                document.getElementById('coach-question').focus();
-                return;
-            }
-
+        function getCoachQuickReply(question) {
             const context = buildCoachContext();
-            const prompt = [
-                'You are a cautious, supportive general fitness and food-education coach. Give practical bodyweight exercise options and balanced, culturally flexible meal ideas. Do not diagnose, prescribe supplements, set calorie targets, promise body changes, or recommend rapid weight loss or restrictive eating.',
-                context.isMinor
-                    ? 'This user is under 18. Do not give weight-loss/body-composition advice or restrictive food rules. Focus on enjoyable movement, rest, balanced meals, and involving a parent/guardian and pediatric clinician.'
-                    : 'Explain that fitness and appearance timelines vary and cannot be guaranteed. Encourage gradual progress, rest, and consulting qualified clinicians for medical needs.',
-                `Goal: ${context.goal}. Available training days per week: ${context.days}. Activity experience: ${context.experience}.`,
-                `Food preferences/allergies supplied by user: ${context.foodPreferences || 'None supplied'}. Treat stated allergies carefully and advise checking labels.`,
-                `User question: ${question}`,
-                'Respond in concise, clear plain text with a realistic workout outline, food ideas, and an honest progress timeframe where appropriate.'
-            ].join('\n');
-
-            button.disabled = true;
-            button.textContent = 'Asking Gemini…';
-            status.textContent = 'Sending your request to Gemini. Your API key and the details shown above leave this browser for this request only.';
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 30000);
-            try {
-                const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-                    body: JSON.stringify({
-                        system_instruction: { parts: [{ text: 'Provide safe, non-medical fitness and food education. Never guarantee results.' }] },
-                        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-                        generationConfig: { temperature: 0.6, maxOutputTokens: 900 }
-                    }),
-                    signal: controller.signal
-                });
-                const data = await response.json();
-                if (!response.ok) {
-                    throw new Error(data.error && data.error.message ? data.error.message : `Gemini returned HTTP ${response.status}.`);
-                }
-                const reply = data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts
-                    ? data.candidates[0].content.parts.map((part) => part.text || '').join('').trim()
-                    : '';
-                if (!reply) throw new Error('Gemini returned no text. Try again with a shorter question.');
-                answer.textContent = reply;
-                status.textContent = 'Gemini response · general wellness education, not medical advice';
-            } catch (error) {
-                status.textContent = error.name === 'AbortError'
-                    ? 'Gemini request timed out. Check your connection and try again.'
-                    : `Gemini request failed: ${error.message}`;
-            } finally {
-                clearTimeout(timeoutId);
-                button.disabled = false;
-                button.textContent = 'Ask Gemini';
+            const text = question.toLowerCase();
+            if (context.isMinor && /(lose weight|weight loss|calorie|diet|thin|fat loss)/.test(text)) {
+                return 'Since you are under 18, I can’t advise on weight loss, calories, or restrictive diets. Focus on enjoyable movement, balanced meals, and enough rest; talk with a parent or guardian and a pediatric clinician for personal guidance.';
             }
+            if (/(food|eat|meal|nutrition|protein|vegetarian|vegan|allerg|peanut)/.test(text)) {
+                const preference = context.foodPreferences
+                    ? ` You mentioned “${context.foodPreferences}”; double-check ingredient labels and avoid any allergen you identified.`
+                    : '';
+                return `Keep it simple: include fruit or vegetables, a protein you enjoy (such as beans, eggs, tofu, yogurt, fish, or poultry), a filling grain or starchy food, and water across regular meals.${preference} There is no single required “fitness food,” and this is general education rather than a medical diet.`;
+            }
+            if (/(how long|when|timeline|results|change|visible)/.test(text)) {
+                return context.isMinor
+                    ? 'Progress is personal. Over the next few weeks, notice energy, confidence, sleep, and movement skills—not body size. Please involve a parent/guardian and pediatric clinician in questions about growth, weight, or diet.'
+                    : 'There is no reliable promise for visible changes. A useful first check-in is 2–4 weeks for consistency and energy, then 8–12 weeks for fitness or strength progress. Results depend on starting point, sleep, health, recovery, and consistency.';
+            }
+            if (/(start|beginner|easy|new|exercise|workout|routine|training)/.test(text)) {
+                const workout = context.goal.toLowerCase().includes('muscle')
+                    ? INDOOR_WORKOUTS.find((item) => item.id === 'w2')
+                    : context.goal.toLowerCase().includes('cardio') || context.goal.toLowerCase().includes('fat loss')
+                        ? INDOOR_WORKOUTS.find((item) => item.id === 'w1')
+                        : INDOOR_WORKOUTS.find((item) => item.id === 'w4');
+                return `A friendly starting point is ${context.days} non-consecutive days a week. For your ${context.goal.toLowerCase()} goal, try ${workout.title} (${workout.duration}): ${workout.exercises.map((exercise) => exercise.name).join(', ')}. Warm up gently, take breaks, and choose an easier variation if needed. Want a complete week-by-week outline? Tap “Build a personalized weekly plan.”`;
+            }
+            return `I can help with beginner-friendly workouts, exercise ideas, food basics, recovery, and realistic progress. Your current goal is ${context.goal.toLowerCase()}. Try asking “What is an easy workout to start with?” or open the full weekly plan for more detail.`;
+        }
+
+        function appendCoachMessage(text, fromUser) {
+            const messages = document.getElementById('coach-bot-messages');
+            const message = document.createElement('p');
+            message.className = fromUser
+                ? 'max-w-[90%] ml-auto rounded-2xl rounded-tr-sm bg-cyan-900/70 p-3 text-xs leading-relaxed text-white'
+                : 'max-w-[90%] rounded-2xl rounded-tl-sm bg-slate-800 p-3 text-xs leading-relaxed text-slate-200 whitespace-pre-wrap';
+            message.textContent = text;
+            messages.appendChild(message);
+            while (messages.children.length > 21) messages.removeChild(messages.firstElementChild);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function handleCoachBotSubmit(event) {
+            event.preventDefault();
+            const input = document.getElementById('coach-bot-input');
+            const question = input.value.trim();
+            if (!question) return;
+            appendCoachMessage(question, true);
+            input.value = '';
+            appendCoachMessage(getCoachQuickReply(question), false);
         }
 
         function renderBiometrics() {
@@ -1429,6 +1437,35 @@
             // Tab Buttons Listener
             document.querySelectorAll('[data-tab]').forEach(btn => {
                 btn.onclick = () => switchTab(btn.getAttribute('data-tab'));
+            });
+            document.getElementById('btn-mobile-menu').onclick = () => {
+                const isOpen = document.getElementById('btn-mobile-menu').getAttribute('aria-expanded') === 'true';
+                setMobileMenuOpen(!isOpen);
+            };
+            document.getElementById('btn-open-coach').onclick = () => {
+                const isOpen = document.getElementById('btn-open-coach').getAttribute('aria-expanded') === 'true';
+                setCoachBotOpen(!isOpen);
+            };
+            document.getElementById('btn-close-coach-bot').onclick = () => setCoachBotOpen(false);
+            document.getElementById('form-coach-bot').onsubmit = handleCoachBotSubmit;
+            document.getElementById('btn-full-coach').onclick = () => {
+                setCoachBotOpen(false);
+                switchTab('coach');
+                document.getElementById('coach-days').focus();
+            };
+            document.getElementById('btn-open-coach-from-plan').onclick = () => setCoachBotOpen(true);
+            document.addEventListener('click', (event) => {
+                const menu = document.getElementById('mobile-menu');
+                const menuButton = document.getElementById('btn-mobile-menu');
+                if (!menu.classList.contains('hidden') && !menu.contains(event.target) && !menuButton.contains(event.target)) {
+                    closeMobileMenu();
+                }
+            });
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    closeMobileMenu();
+                    setCoachBotOpen(false);
+                }
             });
 
             // Onboarding Submission
@@ -1543,7 +1580,6 @@
             };
 
             document.getElementById('btn-local-plan').onclick = buildLocalCoachPlan;
-            document.getElementById('btn-ask-gemini').onclick = askGeminiCoach;
 
             // Quotes Rotator
             document.getElementById('btn-next-quote').onclick = () => {
