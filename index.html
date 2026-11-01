@@ -1457,8 +1457,14 @@
             document.addEventListener('click', (event) => {
                 const menu = document.getElementById('mobile-menu');
                 const menuButton = document.getElementById('btn-mobile-menu');
-                if (!menu.classList.contains('hidden') && !menu.contains(event.target) && !menuButton.contains(event.target)) {
+                const eventPath = event.composedPath();
+                if (!menu.classList.contains('hidden') && !eventPath.includes(menu) && !eventPath.includes(menuButton)) {
                     closeMobileMenu();
+                }
+                const coachPanel = document.getElementById('coach-bot-panel');
+                const coachButton = document.getElementById('btn-open-coach');
+                if (!coachPanel.classList.contains('hidden') && !eventPath.includes(coachPanel) && !eventPath.includes(coachButton)) {
+                    setCoachBotOpen(false);
                 }
             });
             document.addEventListener('keydown', (event) => {
